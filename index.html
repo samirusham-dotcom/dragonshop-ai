@@ -12,6 +12,13 @@
     * { box-sizing: border-box; }
     html { scroll-behavior: smooth; }
     body { margin:0; color:var(--ink); background:var(--cream); font-family:'DM Sans',sans-serif; }
+    <!-- Фоновое видео -->
+<video autoplay muted loop playsinline id="bg-video">
+    <source src="bg-video.mp4" type="video/mp4">
+</video>
+
+<!-- Полупрозрачная темная вуаль для читаемости текста -->
+<div class="video-overlay"></div>
     button { border:0; cursor:pointer; color:inherit; font:inherit; }
     button:focus-visible, input:focus-visible { outline:2px solid var(--coral); outline-offset:2px; }
     .shell { max-width:1320px; margin:0 auto; padding:0 32px; }
@@ -101,7 +108,33 @@
     .ai-form button:disabled { cursor:wait; opacity:.65; }
     @keyframes rise { from { opacity:0; transform:translateY(14px); } to { opacity:1; transform:translateY(0); } }
     @media (max-width:800px) { .shell { padding:0 18px; } .topbar { height:68px; } .nav { gap:16px; } .hero { grid-template-columns:1fr; padding:52px 0 34px; gap:26px; } .hero-copy { justify-self:start; } .grid { grid-template-columns:repeat(2,1fr); gap:22px 12px; } .toolbar { align-items:flex-start; gap:14px; flex-direction:column; } .profile-layout { grid-template-columns:1fr; gap:35px; } .profile-main h1 { font-size:48px; } }
-    @media (max-width:520px) { .search-box { flex-direction:column; } .search-box button { min-height:48px; } .product-info { display:block; } .product-info strong { display:block; margin-top:8px; } .stats { grid-template-columns:1fr; } }
+    @media (max-width:520px) { .search-box { flex-direction:column; } .search-box button { min-height:48px; } .product-info { display:block;} .product-info strong { display:block; margin-top:8px; } .stats { grid-template-columns:1fr; } }
+ /* Видео фиксируется на заднем плане */
+#bg-video {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    object-fit: cover;
+    z-index: -2; /* Убираем видео под все ваши блоки */
+}
+
+/* Легкая темная подложка, чтобы ваш текущий текст и карточки читались отлично */
+.video-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(15, 23, 42, 0.45); /* Регулирует темность фона */
+    z-index: -1;
+}
+
+/* Делаем основной фон страницы прозрачным, чтобы видео просвечивало */
+body {
+    background: transparent !important;
+}
   </style>
 </head>
 <body>
@@ -181,6 +214,11 @@
       navLinks.forEach(item => item.classList.remove('active'));
       views.forEach(view => view.classList.remove('active'));
       link.classList.add('active');
+      if (link.dataset.view === 'home' || link.dataset.view === 'main') {
+    toggleVideo(true);
+} else {
+    toggleVideo(false);
+}
       document.getElementById(link.dataset.view).classList.add('active');
     }));
 
@@ -353,6 +391,21 @@
     document.getElementById('ai-close').addEventListener('click', () => aiPanel.classList.remove('open'));
     document.querySelectorAll('.ai-quick button').forEach(button => button.addEventListener('click', () => { void askAI(button.dataset.question); }));
     aiForm.addEventListener('submit', event => { event.preventDefault(); const question = aiInput.value.trim(); if (!question) return; aiInput.value = ''; void askAI(question); });
+ // Функция переключения видимости видео
+function toggleVideo(isHomePage) {
+    const video = document.getElementById('bg-video');
+    const overlay = document.getElementById('video-overlay');
+    
+    if (video && overlay) {
+        if (isHomePage) {
+            video.classList.remove('video-hidden');
+            overlay.classList.remove('video-hidden');
+        } else {
+            video.classList.add('video-hidden');
+            overlay.classList.add('video-hidden');
+        }
+    }
+}
   </script>
 </body>
 </html>
